@@ -261,6 +261,7 @@ launch_vm() {
     local -r vm_memory="${5:-4096}"
     local -r vm_disksize="${6:-20}"
     local -r vm_nics="${7:-1}"
+    local -r fips_mode="${8:-0}"
 
     local -r full_vmname="$(full_vm_name "${vmname}")"
     local -r kickstart_url="${WEB_SERVER_URL}/scenario-info/${SCENARIO}/vms/${vmname}/kickstart.ks"
@@ -293,7 +294,7 @@ launch_vm() {
     local vm_extra_args
     local vm_initrd_inject
     vm_network_args=""
-    vm_extra_args="console=tty0 console=ttyS0,115200n8 inst.notmux"
+    vm_extra_args="console=tty0 console=ttyS0,115200n8 inst.notmux fips=${fips_mode}"
     vm_initrd_inject=""
 
     for _ in $(seq "${vm_nics}") ; do
@@ -311,6 +312,17 @@ launch_vm() {
     else
         vm_extra_args+=" inst.ks=${kickstart_url}"
     fi
+
+    # change KexAlgorithms for fips enabled VMs
+    if  [ "${fips_mode}" -eq 1 ]; then
+    ipsubnet_wildcard=$(get_vm_bridge_ip | awk -c -F. '{printf "%d.%d.%d.*",$1,$2,$3}')
+    cat - <<EOF | tee -a "${HOME}/.ssh/config"
+Host ${ipsubnet_wildcard}
+  KexAlgorithms ecdh-sha2-nistp256
+  ConnectTimeout 10
+EOF
+    fi
+
 
     # Implement retries on VM creation until the problem is fixed
     # See https://github.com/virt-manager/virt-manager/issues/498
