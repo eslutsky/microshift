@@ -1,0 +1,27 @@
+
+name: Trigger Microshift upstream build
+
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    name: build microshift upstream
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out forkliftci repository
+        uses: actions/checkout@v3
+
+      - name: Add cwd to path for kubectl.
+        run: echo `pwd` >> $GITHUB_PATH
+
+      - name: install pre-req
+        shell: bash
+        run: |
+          df -kh
+          id
+          sudo mkdir -p /mnt/tmp
+          sudo chown 1001:127 /mnt/tmp
+          
+          cd ${GITHUB_WORKSPACE}
+          sudo apt-get install podman -y
+          TMPDIR=/mnt/tmp sudo -E podman build -f okd/src/microshift-okd-multi-build.Containerfile .
