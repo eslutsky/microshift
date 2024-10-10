@@ -8,7 +8,7 @@ jobs:
     name: build microshift upstream
     runs-on: ubuntu-latest
     steps:
-      - name: Check out forkliftci repository
+      - name: Check out microshift repository
         uses: actions/checkout@v3
 
       - name: Add cwd to path for kubectl.
