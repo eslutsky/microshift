@@ -30,4 +30,6 @@ jobs:
         shell: bash
         run: |
           podman run --privileged --rm --name microshift-okd -d microshift-okd
+          sleep 60
+          podman exec -ti microshift-okd oc get pods -A
         
