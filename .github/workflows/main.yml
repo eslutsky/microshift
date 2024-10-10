@@ -25,3 +25,9 @@ jobs:
           cd ${GITHUB_WORKSPACE}
           sudo apt-get install podman -y
           TMPDIR=/mnt/tmp podman build -f okd/src/microshift-okd-multi-build.Containerfile .
+
+      - name: Archive Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+           name: "microshift-upstream"
+           path: artifacts/*
