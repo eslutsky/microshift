@@ -24,7 +24,7 @@ RUN echo '{"auths":{"fake":{"auth":"aWQ6cGFzcwo="}}}' > /tmp/.pull-secret && \
 
 # Building Microshift RPMs and local repo
 RUN make build && \
-    make rpm && \
+    GOFLAGS=-v GOGCFLAGS="-N -l" make rpm && \
     createrepo ${REPO_DIR}
 
 # Building microshift container from local rpms
