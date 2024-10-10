@@ -24,4 +24,4 @@ jobs:
           
           cd ${GITHUB_WORKSPACE}
           sudo apt-get install podman -y
-          TMPDIR=/mnt/tmp sudo -E podman build -f okd/src/microshift-okd-multi-build.Containerfile .
+          TMPDIR=/mnt/tmp podman build -f okd/src/microshift-okd-multi-build.Containerfile .
