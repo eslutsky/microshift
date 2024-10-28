@@ -3,6 +3,18 @@ name: Trigger Microshift upstream build
 
 on:
   workflow_dispatch:
+    inputs:
+      okd-version:
+        default: "4.17.0-okd-scos.ec.2"
+        description: okd release from https://quay.io/repository/okd/scos-release?tab=tags
+        type: string
+      action:
+        type: choice
+        description: what to do?
+        default: run-in-bootc-container
+        options: 
+        - build-upstream-rpms
+        - run-in-bootc-container
 jobs:
   build:
     name: build microshift upstream
@@ -14,20 +26,40 @@ jobs:
       - name: Add cwd to path for kubectl.
         run: echo `pwd` >> $GITHUB_PATH
 
-      - name: install pre-req
+      - name: Build Microshift RPMs
         shell: bash
         run: |
           df -kh
           id
           sudo mkdir -p /mnt/tmp
           sudo chown 1001:127 /mnt/tmp
+          ulimit -a
           
           cd ${GITHUB_WORKSPACE}
+          mkdir output
           sudo apt-get install podman -y
-          TMPDIR=/mnt/tmp podman build --env WITH_FLANNEL=1 -f okd/src/microshift-okd-multi-build.Containerfile . -t microshift-okd
-      - name: run the container
+          ulimit -Sn 65536
+          TMPDIR=/mnt/tmp podman build --ulimit nofile=65536:65536 --build-arg OKD_VERSION_TAG=${{ inputs.okd-version }} --env WITH_FLANNEL=1 -f okd/src/microshift-okd-build-rpms.Containerfile -v $(pwd)/output/:/src/_output/rpmbuild/RPMS/:z .
+          find ${GITHUB_WORKSPACE}/output/
+      - name: uploads artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: RPMs
+          path: output/ # or path/to/artifact
+
+      - name: build Microshift image with sudo
+        if:  inputs.okd-version == 'run-in-bootc-container'
         shell: bash
         run: |
-          podman run --privileged --rm --name microshift-okd -d microshift-okd
-          sleep 300
-          podman exec -ti microshift-okd oc get pods -A
+          cd ${GITHUB_WORKSPACE}
+          sudo podman build --env WITH_FLANNEL=1 -f okd/src/microshift-okd-run.Containerfile -v $(pwd)/output/:/tmp/rpm-repo:z . -t microshift-okd
+
+
+      - name: run Microshift container with sudo
+        if:  inputs.okd-version == 'run-in-bootc-container'
+        shell: bash
+        run: |
+          sudo podman run --privileged --rm --name microshift-okd -d microshift-okd
+          sleep 3
+          # wait until everything is running
+          sudo podman exec -ti microshift-okd bash -c '/etc/greenboot/check/required.d/40_microshift_running_check.sh && oc get pods -A'
