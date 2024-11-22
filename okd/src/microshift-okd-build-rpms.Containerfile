@@ -14,13 +14,14 @@ RUN useradd -m -s /bin/bash microshift -d /microshift && \
     echo 'microshift  ALL=(ALL)  NOPASSWD: ALL' >/etc/sudoers.d/microshift 
 COPY . /src 
 RUN chown -R microshift:microshift /microshift /src
-
+RUN id microshift
 USER 1000:1000
 WORKDIR /src
 # Preparing for the build
 RUN ulimit -a
+
 RUN echo '{"auths":{"fake":{"auth":"aWQ6cGFzcwo="}}}' > /tmp/.pull-secret && \
-   /src/scripts/devenv-builder/configure-vm.sh --no-build --no-set-release-version --skip-dnf-update /tmp/.pull-secret && \
+   bash -x /src/scripts/devenv-builder/configure-vm.sh --no-build --no-set-release-version --skip-dnf-update /tmp/.pull-secret && \
    /src/okd/src/use_okd_assets.sh --replace ${OKD_REPO} ${OKD_VERSION_TAG}
 
 # Building Microshift RPMs and local repo
