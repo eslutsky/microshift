@@ -7,6 +7,8 @@ import (
 	embedded "github.com/openshift/microshift/assets"
 
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 	coreclientv1 "k8s.io/client-go/kubernetes/typed/core/v1"
@@ -204,4 +206,19 @@ func ApplySecretWithData(ctx context.Context, secretPath string, data map[string
 	secret.secret.Data = data
 	_, _, err = resourceapply.ApplySecret(ctx, secret.Client, assetsEventRecorder, secret.secret)
 	return err
+}
+
+func FindSecretByLabel(ctx context.Context, kubeconfigPath string, namespace string, label string) (string, error) {
+	client := coreClient(kubeconfigPath)
+
+	secrets, err := client.Secrets(namespace).List(ctx, metav1.ListOptions{LabelSelector: label})
+	if err != nil && !apierrors.IsNotFound(err) {
+		return "", err
+	}
+
+	for _, secret := range secrets.Items {
+		return secret.Name, nil
+	}
+
+	return "", fmt.Errorf("couldnt find secret by label")
 }

@@ -194,6 +194,7 @@ func startIngressController(ctx context.Context, cfg *config.Config, kubeconfigP
 		klog.Warningf("Failed to apply service %v %v", svc, err)
 		return err
 	}
+
 	if err := assets.ApplySecretWithData(
 		ctx,
 		servingKeypairSecret,
@@ -205,6 +206,13 @@ func startIngressController(ctx context.Context, cfg *config.Config, kubeconfigP
 	); err != nil {
 		klog.Warningf("failed to apply secret %q: %v", servingKeypairSecret, err)
 		return err
+	}
+
+	// look for a secret with a matching label and override the CertificateServer
+	secretName, err := assets.FindSecretByLabel(ctx, kubeconfigPath, "openshift-ingress", "ingress_certificate=true")
+
+	if err == nil {
+		cfg.Ingress.ServingCertificateSecret = secretName
 	}
 
 	if err := assets.ApplyDeployments(ctx, apps, renderTemplate, renderParamsFromConfig(cfg, extraParams), kubeconfigPath); err != nil {
