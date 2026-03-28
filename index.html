@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MicroShift CI Release Manager Report - 2026-03-23</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { color: #1a1a2e; border-bottom: 3px solid #e94560; padding-bottom: 10px; }
+        .release-section { background: white; border-radius: 8px; padding: 20px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .release-header { display: flex; justify-content: space-between; align-items: center; }
+        .release-header h2 { color: #16213e; margin: 0; }
+        .badge { padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600; }
+        .badge-ok { background: #d4edda; color: #155724; }
+        .badge-issues { background: #fff3cd; color: #856404; }
+        .badge-critical { background: #f8d7da; color: #721c24; }
+        .badge-nodata { background: #e2e3e5; color: #383d41; }
+        .summary-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        .summary-table th, .summary-table td { padding: 10px 14px; text-align: left; border-bottom: 1px solid #eee; }
+        .summary-table th { background: #f8f9fa; font-weight: 600; color: #495057; }
+        .summary-table tr:hover { background: #f8f9fa; }
+        .status-pass { color: #28a745; font-weight: 600; }
+        .status-fail { color: #dc3545; font-weight: 600; }
+        .overview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .overview-card { background: white; border-radius: 8px; padding: 20px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .overview-card .number { font-size: 2em; font-weight: 700; }
+        .overview-card .label { color: #6c757d; font-size: 0.9em; margin-top: 5px; }
+        .content-block { white-space: pre-wrap; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 0.85em; background: #f8f9fa; padding: 15px; border-radius: 4px; border: 1px solid #e9ecef; overflow-x: auto; margin: 10px 0; }
+        .collapsible { cursor: pointer; user-select: none; padding: 10px; background: #f8f9fa; border-radius: 4px; margin: 10px 0; }
+        .collapsible::before { content: '\25B6  '; font-size: 0.8em; }
+        .collapsible.active::before { content: '\25BC  '; }
+        .collapsible .job-date { float: right; font-weight: 400; color: #6c757d; font-size: 0.85em; }
+        .collapsible-content { display: none; }
+        .collapsible-content.show { display: block; }
+        .toc { background: white; border-radius: 8px; padding: 20px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 5px 0; }
+        .toc a { color: #0366d6; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .timestamp { color: #6c757d; font-size: 0.9em; }
+        a { color: #0366d6; }
+        .tab-bar { display: flex; gap: 0; margin: 20px 0 0 0; border-bottom: 2px solid #dee2e6; }
+        .tab-btn { padding: 12px 24px; border: none; background: transparent; font-size: 1em; font-weight: 600; color: #6c757d; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: color 0.2s, border-color 0.2s; }
+        .tab-btn:hover { color: #333; }
+        .tab-btn.active { color: #e94560; border-bottom-color: #e94560; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .pr-section { background: white; border-radius: 8px; padding: 20px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .job-detail { margin: 15px 0; padding: 15px; background: #f8f9fa; border-left: 4px solid #dc3545; border-radius: 4px; }
+        .job-detail h4 { margin: 0 0 10px 0; color: #dc3545; }
+        .job-detail .job-url { font-size: 0.85em; word-break: break-all; }
+        .severity-high { border-left-color: #dc3545; }
+        .severity-medium { border-left-color: #ffc107; }
+        .severity-low { border-left-color: #17a2b8; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>MicroShift CI Release Manager Report</h1>
+    <p class="timestamp">Generated: 2026-03-23 17:50:00 UTC</p>
+
+    <div class="overview-grid">
+        <div class="overview-card">
+            <div class="number status-pass">0</div>
+            <div class="label">Release 4.18 Failed Jobs</div>
+        </div>
+        <div class="overview-card">
+            <div class="number status-pass">0</div>
+            <div class="label">Release 4.19 Failed Jobs</div>
+        </div>
+        <div class="overview-card">
+            <div class="number status-pass">0</div>
+            <div class="label">Release 4.20 Failed Jobs</div>
+        </div>
+        <div class="overview-card">
+            <div class="number status-pass">0</div>
+            <div class="label">Release 4.21 Failed Jobs</div>
+        </div>
+        <div class="overview-card">
+            <div class="number status-pass">0</div>
+            <div class="label">Release 4.22 Failed Jobs</div>
+        </div>
+        <div class="overview-card">
+            <div class="number status-pass">0</div>
+            <div class="label">Main Branch Failed Jobs</div>
+        </div>
+        <div class="overview-card">
+            <div class="number status-fail">5</div>
+            <div class="label">Rebase PRs Failed Jobs</div>
+        </div>
+    </div>
+
+    <div class="tab-bar">
+        <button class="tab-btn active" onclick="showTab(event, 'periodics')">Periodics</button>
+        <button class="tab-btn" onclick="showTab(event, 'pull-requests')">Pull Requests</button>
+    </div>
+
+    <div id="tab-periodics" class="tab-content active">
+        <div class="toc">
+            <h3>Releases Analyzed</h3>
+            <ul>
+                <li><a href="#release-4.18">Release 4.18</a> - <span class="status-pass">✓ All Passing</span></li>
+                <li><a href="#release-4.19">Release 4.19</a> - <span class="status-pass">✓ All Passing</span></li>
+                <li><a href="#release-4.20">Release 4.20</a> - <span class="status-pass">✓ All Passing</span></li>
+                <li><a href="#release-4.21">Release 4.21</a> - <span class="status-pass">✓ All Passing</span></li>
+                <li><a href="#release-4.22">Release 4.22</a> - <span class="status-pass">✓ All Passing</span></li>
+                <li><a href="#release-main">Main Branch</a> - <span class="status-pass">✓ All Passing</span></li>
+            </ul>
+        </div>
+
+        <div class="release-section" id="release-4.18">
+            <div class="release-header">
+                <h2>Release 4.18</h2>
+                <span class="badge badge-ok">0 failed jobs</span>
+            </div>
+            <div class="content-block">═══════════════════════════════════════════════════════════════
+MICROSHIFT 4.18 RELEASE - FAILED JOBS ANALYSIS
+═══════════════════════════════════════════════════════════════
+
+📊 OVERVIEW
+  Total Failed Jobs: 0
+  Analysis Date: 2026-03-23
+  Status: ALL JOBS PASSING ✓
+
+🎉 RESULT
+  No failed periodic jobs found for release 4.18
+  This is good news - all periodic jobs are passing!
+
+═══════════════════════════════════════════════════════════════</div>
+        </div>
+
+        <div class="release-section" id="release-4.19">
+            <div class="release-header">
+                <h2>Release 4.19</h2>
+                <span class="badge badge-ok">0 failed jobs</span>
+            </div>
+            <div class="content-block">═══════════════════════════════════════════════════════════════
+MICROSHIFT 4.19 RELEASE - FAILED JOBS ANALYSIS
+═══════════════════════════════════════════════════════════════
+
+📊 OVERVIEW
+  Total Failed Jobs: 0
+  Analysis Date: 2026-03-23
+  Status: ALL JOBS PASSING ✓
+
+🎉 RESULT
+  No failed periodic jobs found for release 4.19
+  This is good news - all periodic jobs are passing!
+
+═══════════════════════════════════════════════════════════════</div>
+        </div>
+
+        <div class="release-section" id="release-4.20">
+            <div class="release-header">
+                <h2>Release 4.20</h2>
+                <span class="badge badge-ok">0 failed jobs</span>
+            </div>
+            <div class="content-block">═══════════════════════════════════════════════════════════════
+MICROSHIFT 4.20 RELEASE - FAILED JOBS ANALYSIS
+═══════════════════════════════════════════════════════════════
+
+📊 OVERVIEW
+  Total Failed Jobs: 0
+  Analysis Date: 2026-03-23
+  Status: ALL JOBS PASSING ✓
+
+🎉 RESULT
+  No failed periodic jobs found for release 4.20
+  This is good news - all periodic jobs are passing!
+
+═══════════════════════════════════════════════════════════════</div>
+        </div>
+
+        <div class="release-section" id="release-4.21">
+            <div class="release-header">
+                <h2>Release 4.21</h2>
+                <span class="badge badge-ok">0 failed jobs</span>
+            </div>
+            <div class="content-block">═══════════════════════════════════════════════════════════════
+MICROSHIFT 4.21 RELEASE - FAILED JOBS ANALYSIS
+═══════════════════════════════════════════════════════════════
+
+📊 OVERVIEW
+  Total Failed Jobs: 0
+  Analysis Date: 2026-03-23
+  Status: ALL JOBS PASSING ✓
+
+🎉 RESULT
+  No failed periodic jobs found for release 4.21
+  This is good news - all periodic jobs are passing!
+
+═══════════════════════════════════════════════════════════════</div>
+        </div>
+
+        <div class="release-section" id="release-4.22">
+            <div class="release-header">
+                <h2>Release 4.22</h2>
+                <span class="badge badge-ok">0 failed jobs</span>
+            </div>
+            <div class="content-block">═══════════════════════════════════════════════════════════════
+MICROSHIFT 4.22 RELEASE - FAILED JOBS ANALYSIS
+═══════════════════════════════════════════════════════════════
+
+📊 OVERVIEW
+  Total Failed Jobs: 0
+  Analysis Date: 2026-03-23
+  Status: ALL JOBS PASSING ✓
+
+🎉 RESULT
+  No failed periodic jobs found for release 4.22
+  This is good news - all periodic jobs are passing!
+
+═══════════════════════════════════════════════════════════════</div>
+        </div>
+
+        <div class="release-section" id="release-main">
+            <div class="release-header">
+                <h2>Main Branch</h2>
+                <span class="badge badge-ok">0 failed jobs</span>
+            </div>
+            <div class="content-block">═══════════════════════════════════════════════════════════════
+MICROSHIFT MAIN BRANCH - FAILED JOBS ANALYSIS
+═══════════════════════════════════════════════════════════════
+
+📊 OVERVIEW
+  Total Failed Jobs: 0
+  Analysis Date: 2026-03-23
+  Status: ALL JOBS PASSING ✓
+
+🎉 RESULT
+  No failed periodic jobs found for main branch
+  This is good news - all periodic jobs are passing!
+
+═══════════════════════════════════════════════════════════════</div>
+        </div>
+    </div>
+
+    <div id="tab-pull-requests" class="tab-content">
+        <div class="pr-section" id="pr-6391">
+            <div class="release-header">
+                <h2>PR #6391: NO-ISSUE: rebase-release-4.22</h2>
+                <span class="badge badge-issues">1 failed job</span>
+            </div>
+            <p><a href="https://github.com/openshift/microshift/pull/6391" target="_blank">https://github.com/openshift/microshift/pull/6391</a></p>
+            <p><strong>Status:</strong> 14 passed, 1 failed</p>
+
+            <div class="job-detail severity-medium">
+                <h4>1. pull-ci-openshift-microshift-main-e2e-aws-tests-bootc-arm-el10</h4>
+                <p class="job-url"><a href="https://prow.ci.openshift.org/view/gs/test-platform-results/pr-logs/pull/openshift_microshift/6391/pull-ci-openshift-microshift-main-e2e-aws-tests-bootc-arm-el10/2036068479202758656" target="_blank">View Job</a></p>
+                <p><strong>Severity:</strong> MEDIUM (3/5)</p>
+                <p><strong>Root Cause:</strong> Auto-recovery service test failure on EL10 - service remains in "failed" state instead of transitioning to "dead" state</p>
+                <p><strong>Details:</strong></p>
+                <ul>
+                    <li>Only 1 of 15 parallel scenarios failed (el102-src@auto-recovery)</li>
+                    <li>All other auto-recovery tests passed (EL9.6, EL9.8)</li>
+                    <li>Specific to EL10.2 bootc environment</li>
+                    <li>Error: Keyword 'Auto Recovery Finished Recently' failed after retrying 20 times</li>
+                </ul>
+                <p><strong>Next Steps:</strong> Examine microshift-auto-recovery.service logs on EL10, compare with EL9 behavior, check for EL10-specific systemd changes</p>
+            </div>
+        </div>
+
+        <div class="pr-section" id="pr-6389">
+            <div class="release-header">
+                <h2>PR #6389: NO-ISSUE: rebase-release-4.20</h2>
+                <span class="badge badge-critical">2 failed jobs</span>
+            </div>
+            <p><a href="https://github.com/openshift/microshift/pull/6389" target="_blank">https://github.com/openshift/microshift/pull/6389</a></p>
+            <p><strong>Status:</strong> 11 passed, 2 failed</p>
+
+            <div class="job-detail severity-high">
+                <h4>1. pull-ci-openshift-microshift-release-4.20-e2e-aws-tests</h4>
+                <p class="job-url"><a href="https://prow.ci.openshift.org/view/gs/test-platform-results/pr-logs/pull/openshift_microshift/6389/pull-ci-openshift-microshift-release-4.20-e2e-aws-tests/2036068186213847040" target="_blank">View Job</a></p>
+                <p><strong>Severity:</strong> CRITICAL (5/5)</p>
+                <p><strong>Root Cause:</strong> systemd eBPF device filter installation failure - prevents ALL OVN containers from starting</p>
+                <p><strong>Details:</strong></p>
+                <ul>
+                    <li>Scenario: el94-yminus2@el96-src@upgrade-ok (RHEL 9.4 → 9.6)</li>
+                    <li>OVN pods cannot start → no CNI → no network → greenboot timeout</li>
+                    <li>Incompatibility between RHEL 9.6 systemd/kernel and CRI-O</li>
+                    <li>Error: CreateContainerError - systemd failed to install eBPF device filter on cgroup</li>
+                </ul>
+                <p><strong>Next Steps:</strong> Verify CRI-O compatibility with RHEL 9.6 systemd, check cgroup v2 configuration changes, update CRI-O or modify OVN pod specs</p>
+            </div>
+
+            <div class="job-detail severity-medium">
+                <h4>2. pull-ci-openshift-microshift-release-4.20-e2e-aws-tests-arm</h4>
+                <p class="job-url"><a href="https://prow.ci.openshift.org/view/gs/test-platform-results/pr-logs/pull/openshift_microshift/6389/pull-ci-openshift-microshift-release-4.20-e2e-aws-tests-arm/2036068186255790080" target="_blank">View Job</a></p>
+                <p><strong>Severity:</strong> MEDIUM (3/5)</p>
+                <p><strong>Root Cause:</strong> Greenboot timeout - no pods started within 600s</p>
+                <p><strong>Details:</strong></p>
+                <ul>
+                    <li>Scenario: el94-yminus2@el96-src@upgrade-ok (ARM)</li>
+                    <li>MicroShift service and API healthy, but pods won't start</li>
+                    <li>Only 1 of 20 scenarios failed</li>
+                </ul>
+                <p><strong>Next Steps:</strong> Check MicroShift journal for pod startup errors, review networking/CNI configuration on ARM</p>
+            </div>
+        </div>
+
+        <div class="pr-section" id="pr-6388">
+            <div class="release-header">
+                <h2>PR #6388: NO-ISSUE: rebase-release-4.19</h2>
+                <span class="badge badge-critical">2 failed jobs</span>
+            </div>
+            <p><a href="https://github.com/openshift/microshift/pull/6388" target="_blank">https://github.com/openshift/microshift/pull/6388</a></p>
+            <p><strong>Status:</strong> 11 passed, 2 failed</p>
+
+            <div class="job-detail severity-high">
+                <h4>1. pull-ci-openshift-microshift-release-4.19-e2e-aws-tests</h4>
+                <p class="job-url"><a href="https://prow.ci.openshift.org/view/gs/test-platform-results/pr-logs/pull/openshift_microshift/6388/pull-ci-openshift-microshift-release-4.19-e2e-aws-tests/2036068093242904576" target="_blank">View Job</a></p>
+                <p><strong>Severity:</strong> HIGH (4/5)</p>
+                <p><strong>Root Cause:</strong> Missing SCC annotations on namespaces after upgrade - prevents ALL pod creation</p>
+                <p><strong>Details:</strong></p>
+                <ul>
+                    <li>Scenario: el94-prel@el96-src@upgrade-ok (RHEL 9.4 → 9.6)</li>
+                    <li>Missing annotation: openshift.io/sa.scc.uid-range</li>
+                    <li>Affects: openshift-service-ca, kube-system, default, kube-public, kube-node-lease</li>
+                    <li>SCC admission controller blocks all pod creation</li>
+                </ul>
+                <p><strong>Next Steps:</strong> Fix MicroShift upgrade logic to preserve/regenerate SCC annotations - this is a product bug in 4.18 → 4.19 upgrade path</p>
+            </div>
+
+            <div class="job-detail severity-high">
+                <h4>2. pull-ci-openshift-microshift-release-4.19-e2e-aws-tests-arm</h4>
+                <p class="job-url"><a href="https://prow.ci.openshift.org/view/gs/test-platform-results/pr-logs/pull/openshift_microshift/6388/pull-ci-openshift-microshift-release-4.19-e2e-aws-tests-arm/2036068093289041920" target="_blank">View Job</a></p>
+                <p><strong>Severity:</strong> CRITICAL (5/5)</p>
+                <p><strong>Root Cause:</strong> systemd eBPF device filter failure (same root cause as PR #6389)</p>
+                <p><strong>Details:</strong></p>
+                <ul>
+                    <li>Scenarios: el94-prel@el96-src@upgrade-ok AND el94-yminus2@el96-src@upgrade-ok</li>
+                    <li>Both RHEL 9.4 → 9.6 upgrade scenarios on ARM64</li>
+                    <li>2 of 20 scenarios failed</li>
+                    <li>Same systemd/CRI-O compatibility issue</li>
+                </ul>
+                <p><strong>Next Steps:</strong> Same as other eBPF failures - CRI-O configuration updates or systemd service adjustments needed</p>
+            </div>
+        </div>
+
+        <div class="pr-section">
+            <h3>Common Patterns Across PRs</h3>
+            <div class="job-detail severity-high">
+                <h4>Pattern 1: RHEL 9.4 → 9.6 Upgrade Issues (3 jobs)</h4>
+                <p><strong>Issue:</strong> systemd eBPF device filter failures on ARM64</p>
+                <p><strong>Affected:</strong> PR #6389 (4.20), PR #6388 (4.19)</p>
+                <p><strong>Severity:</strong> CRITICAL</p>
+                <p>This appears to be a systemic issue with RHEL 9.6 upgrades on ARM architecture where systemd cannot install eBPF device filters for container cgroups.</p>
+            </div>
+
+            <div class="job-detail severity-medium">
+                <h4>Pattern 2: Missing SCC Annotations After Upgrade (1 job)</h4>
+                <p><strong>Issue:</strong> Namespace annotations lost during 4.18 → 4.19 upgrade</p>
+                <p><strong>Affected:</strong> PR #6388 (4.19)</p>
+                <p><strong>Severity:</strong> HIGH</p>
+                <p>Product bug in MicroShift upgrade path - namespace SCC annotations not preserved during version upgrades.</p>
+            </div>
+
+            <div class="job-detail severity-low">
+                <h4>Pattern 3: EL10 Auto-Recovery Test Failure (1 job)</h4>
+                <p><strong>Issue:</strong> Service state transition issue on EL10</p>
+                <p><strong>Affected:</strong> PR #6391 (4.22)</p>
+                <p><strong>Severity:</strong> MEDIUM</p>
+                <p>Isolated to EL10.2 environment - may be EL10 support gap or test issue.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showTab(e, name) {
+    document.querySelectorAll('.tab-content').forEach(function(el) {
+        el.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-btn').forEach(function(el) {
+        el.classList.remove('active');
+    });
+    document.getElementById('tab-' + name).classList.add('active');
+    e.target.classList.add('active');
+}
+
+document.querySelectorAll('.collapsible').forEach(function(el) {
+    el.addEventListener('click', function() {
+        this.classList.toggle('active');
+        var content = this.nextElementSibling;
+        content.classList.toggle('show');
+    });
+});
+</script>
+</body>
+</html>
