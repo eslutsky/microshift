@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MicroShift CI Release Manager Report - 2026-03-23</title>
+    <title>MicroShift CI Release Manager Report - 2026-03-28</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; color: #333; }
         .container { max-width: 1200px; margin: 0 auto; }
         h1 { color: #1a1a2e; border-bottom: 3px solid #e94560; padding-bottom: 10px; }
         .release-section { background: white; border-radius: 8px; padding: 20px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .release-header { display: flex; justify-content: space-between; align-items: center; }
+        .release-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
         .release-header h2 { color: #16213e; margin: 0; }
         .badge { padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600; }
         .badge-ok { background: #d4edda; color: #155724; }
@@ -19,18 +19,25 @@
         .summary-table th, .summary-table td { padding: 10px 14px; text-align: left; border-bottom: 1px solid #eee; }
         .summary-table th { background: #f8f9fa; font-weight: 600; color: #495057; }
         .summary-table tr:hover { background: #f8f9fa; }
-        .status-pass { color: #28a745; font-weight: 600; }
-        .status-fail { color: #dc3545; font-weight: 600; }
+        .severity-1, .severity-2 { color: #28a745; }
+        .severity-3 { color: #856404; }
+        .severity-4 { color: #dc3545; }
+        .severity-5 { color: #721c24; font-weight: 700; }
+        .infra-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; font-weight: 600; background: #cce5ff; color: #004085; }
+        .root-cause { background: #fff8e1; border-left: 3px solid #ffc107; padding: 8px 12px; margin: 8px 0; font-size: 0.9em; }
+        .status-pass { color: #28a745; }
+        .status-fail { color: #dc3545; }
         .overview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
         .overview-card { background: white; border-radius: 8px; padding: 20px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .overview-card .number { font-size: 2em; font-weight: 700; }
-        .overview-card .label { color: #6c757d; font-size: 0.9em; margin-top: 5px; }
+        .overview-card .label { color: #6c757d; font-size: 0.9em; }
         .content-block { white-space: pre-wrap; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 0.85em; background: #f8f9fa; padding: 15px; border-radius: 4px; border: 1px solid #e9ecef; overflow-x: auto; margin: 10px 0; }
-        .collapsible { cursor: pointer; user-select: none; padding: 10px; background: #f8f9fa; border-radius: 4px; margin: 10px 0; }
+        .collapsible { cursor: pointer; user-select: none; padding: 10px 0; border-bottom: 1px solid #eee; font-weight: 600; }
         .collapsible::before { content: '\25B6  '; font-size: 0.8em; }
         .collapsible.active::before { content: '\25BC  '; }
-        .collapsible .job-date { float: right; font-weight: 400; color: #6c757d; font-size: 0.85em; }
-        .collapsible-content { display: none; }
+        .collapsible .job-date { font-weight: 400; color: #6c757d; font-size: 0.85em; }
+        .job-date { font-weight: 400; color: #6c757d; font-size: 0.85em; }
+        .collapsible-content { display: none; padding: 10px 0 10px 20px; }
         .collapsible-content.show { display: block; }
         .toc { background: white; border-radius: 8px; padding: 20px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .toc ul { list-style: none; padding-left: 0; }
@@ -45,324 +52,371 @@
         .tab-btn.active { color: #e94560; border-bottom-color: #e94560; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .pr-section { background: white; border-radius: 8px; padding: 20px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .job-detail { margin: 15px 0; padding: 15px; background: #f8f9fa; border-left: 4px solid #dc3545; border-radius: 4px; }
-        .job-detail h4 { margin: 0 0 10px 0; color: #dc3545; }
-        .job-detail .job-url { font-size: 0.85em; word-break: break-all; }
-        .severity-high { border-left-color: #dc3545; }
-        .severity-medium { border-left-color: #ffc107; }
-        .severity-low { border-left-color: #17a2b8; }
+        .breakdown { display: flex; gap: 15px; margin: 10px 0; flex-wrap: wrap; }
+        .breakdown-item { font-size: 0.85em; color: #6c757d; }
+        .breakdown-item strong { color: #333; }
+        .scenario-list { margin: 5px 0; padding-left: 20px; }
+        .scenario-list li { font-size: 0.9em; margin: 3px 0; }
     </style>
 </head>
 <body>
 <div class="container">
     <h1>MicroShift CI Release Manager Report</h1>
-    <p class="timestamp">Generated: 2026-03-23 17:50:00 UTC</p>
+    <p class="timestamp">Generated: 2026-03-28 UTC</p>
 
+    <!-- Overview cards -->
     <div class="overview-grid">
         <div class="overview-card">
-            <div class="number status-pass">0</div>
-            <div class="label">Release 4.18 Failed Jobs</div>
-        </div>
-        <div class="overview-card">
-            <div class="number status-pass">0</div>
+            <div class="number status-fail">4</div>
             <div class="label">Release 4.19 Failed Jobs</div>
         </div>
         <div class="overview-card">
-            <div class="number status-pass">0</div>
+            <div class="number status-fail">9</div>
             <div class="label">Release 4.20 Failed Jobs</div>
         </div>
         <div class="overview-card">
-            <div class="number status-pass">0</div>
+            <div class="number status-fail">7</div>
             <div class="label">Release 4.21 Failed Jobs</div>
         </div>
         <div class="overview-card">
-            <div class="number status-pass">0</div>
+            <div class="number status-fail">10</div>
             <div class="label">Release 4.22 Failed Jobs</div>
         </div>
         <div class="overview-card">
-            <div class="number status-pass">0</div>
-            <div class="label">Main Branch Failed Jobs</div>
+            <div class="number status-fail">2</div>
+            <div class="label">main Failed Jobs</div>
         </div>
         <div class="overview-card">
-            <div class="number status-fail">5</div>
+            <div class="number status-fail">2</div>
             <div class="label">Rebase PRs Failed Jobs</div>
         </div>
     </div>
 
+    <!-- Tab navigation -->
     <div class="tab-bar">
         <button class="tab-btn active" onclick="showTab(event, 'periodics')">Periodics</button>
         <button class="tab-btn" onclick="showTab(event, 'pull-requests')">Pull Requests</button>
     </div>
 
+    <!-- Periodics tab content -->
     <div id="tab-periodics" class="tab-content active">
+
+        <!-- Table of Contents -->
         <div class="toc">
             <h3>Releases Analyzed</h3>
             <ul>
-                <li><a href="#release-4.18">Release 4.18</a> - <span class="status-pass">✓ All Passing</span></li>
-                <li><a href="#release-4.19">Release 4.19</a> - <span class="status-pass">✓ All Passing</span></li>
-                <li><a href="#release-4.20">Release 4.20</a> - <span class="status-pass">✓ All Passing</span></li>
-                <li><a href="#release-4.21">Release 4.21</a> - <span class="status-pass">✓ All Passing</span></li>
-                <li><a href="#release-4.22">Release 4.22</a> - <span class="status-pass">✓ All Passing</span></li>
-                <li><a href="#release-main">Main Branch</a> - <span class="status-pass">✓ All Passing</span></li>
+                <li><a href="#release-4.19">Release 4.19</a> &mdash; 4 failed jobs</li>
+                <li><a href="#release-4.20">Release 4.20</a> &mdash; 9 failed jobs</li>
+                <li><a href="#release-4.21">Release 4.21</a> &mdash; 7 failed jobs</li>
+                <li><a href="#release-4.22">Release 4.22</a> &mdash; 10 failed jobs</li>
+                <li><a href="#release-main">Release main</a> &mdash; 2 failed jobs</li>
             </ul>
         </div>
 
-        <div class="release-section" id="release-4.18">
-            <div class="release-header">
-                <h2>Release 4.18</h2>
-                <span class="badge badge-ok">0 failed jobs</span>
-            </div>
-            <div class="content-block">═══════════════════════════════════════════════════════════════
-MICROSHIFT 4.18 RELEASE - FAILED JOBS ANALYSIS
-═══════════════════════════════════════════════════════════════
-
-📊 OVERVIEW
-  Total Failed Jobs: 0
-  Analysis Date: 2026-03-23
-  Status: ALL JOBS PASSING ✓
-
-🎉 RESULT
-  No failed periodic jobs found for release 4.18
-  This is good news - all periodic jobs are passing!
-
-═══════════════════════════════════════════════════════════════</div>
-        </div>
-
+        <!-- ==================== RELEASE 4.19 ==================== -->
         <div class="release-section" id="release-4.19">
             <div class="release-header">
                 <h2>Release 4.19</h2>
-                <span class="badge badge-ok">0 failed jobs</span>
+                <span class="badge badge-issues">4 failed jobs</span>
             </div>
-            <div class="content-block">═══════════════════════════════════════════════════════════════
-MICROSHIFT 4.19 RELEASE - FAILED JOBS ANALYSIS
-═══════════════════════════════════════════════════════════════
+            <div class="breakdown">
+                <div class="breakdown-item"><strong>Build:</strong> 0</div>
+                <div class="breakdown-item"><strong>Test:</strong> 4</div>
+                <div class="breakdown-item"><strong>Infrastructure:</strong> 0</div>
+            </div>
 
-📊 OVERVIEW
-  Total Failed Jobs: 0
-  Analysis Date: 2026-03-23
-  Status: ALL JOBS PASSING ✓
-
-🎉 RESULT
-  No failed periodic jobs found for release 4.19
-  This is good news - all periodic jobs are passing!
-
-═══════════════════════════════════════════════════════════════</div>
+            <div class="collapsible"><span class="severity-3">SEVERITY 3:</span> Greenboot health check timeout on RHEL 9.4 base images (4 jobs)</div>
+            <div class="collapsible-content">
+                <div class="root-cause"><strong>Root Cause:</strong> All 4 failures share the same underlying issue: MicroShift (4.17 or 4.18) on RHEL 9.4 base images fails the greenboot health check because no pods start within the 600-second timeout, even though the MicroShift service is active and API health endpoints respond OK. This affects both architectures (arm64 and x86_64) and both deployment types (ostree and bootc). Only scenarios that begin with an el94 base image are affected; all el96-only scenarios pass.</div>
+                <p><strong>Affected Jobs:</strong></p>
+                <ul class="scenario-list">
+                    <li><span class="job-date">[2026-03-27]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.19-periodics-e2e-aws-tests-arm-nightly/2037356481073909760">periodic-ci-openshift-microshift-release-4.19-periodics-e2e-aws-tests-arm-nightly</a></li>
+                    <li><span class="job-date">[2026-03-27]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.19-periodics-e2e-aws-tests-bootc-arm-nightly/2037349072649588736">periodic-ci-openshift-microshift-release-4.19-periodics-e2e-aws-tests-bootc-arm-nightly</a></li>
+                    <li><span class="job-date">[2026-03-27]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.19-periodics-e2e-aws-tests-bootc-nightly/2037349075170365440">periodic-ci-openshift-microshift-release-4.19-periodics-e2e-aws-tests-bootc-nightly</a></li>
+                    <li><span class="job-date">[2026-03-27]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.19-periodics-e2e-aws-tests-nightly/2037356481103269888">periodic-ci-openshift-microshift-release-4.19-periodics-e2e-aws-tests-nightly</a></li>
+                </ul>
+                <p><strong>Next Steps:</strong> Investigate container image pull failures on el94 base, CRI-O or kubelet issues on RHEL 9.4 preventing pod scheduling, or recent changes to el94 base image / MicroShift 4.17/4.18 RPM repos that broke pod startup.</p>
+            </div>
         </div>
 
+        <!-- ==================== RELEASE 4.20 ==================== -->
         <div class="release-section" id="release-4.20">
             <div class="release-header">
                 <h2>Release 4.20</h2>
-                <span class="badge badge-ok">0 failed jobs</span>
+                <span class="badge badge-critical">9 failed jobs</span>
             </div>
-            <div class="content-block">═══════════════════════════════════════════════════════════════
-MICROSHIFT 4.20 RELEASE - FAILED JOBS ANALYSIS
-═══════════════════════════════════════════════════════════════
+            <div class="breakdown">
+                <div class="breakdown-item"><strong>Build:</strong> 1</div>
+                <div class="breakdown-item"><strong>Test:</strong> 7</div>
+                <div class="breakdown-item"><strong>Infrastructure:</strong> 1</div>
+            </div>
 
-📊 OVERVIEW
-  Total Failed Jobs: 0
-  Analysis Date: 2026-03-23
-  Status: ALL JOBS PASSING ✓
+            <div class="collapsible"><span class="severity-4">SEVERITY 4:</span> eBPF Device Filter Failures on el94-yminus2 Upgrade Scenarios (3 jobs)</div>
+            <div class="collapsible-content">
+                <div class="root-cause"><strong>Root Cause:</strong> When upgrading from RHEL 9.4 y-minus-2 to the current version, systemd fails to install eBPF device filters on cgroups with "Permission denied" errors. This prevents CRI-O from creating containers for OVN pods, causing MicroShift to never become healthy and greenboot to declare failure. Systemic issue with the el94-yminus2 upgrade path.</div>
+                <p><strong>Affected Jobs:</strong></p>
+                <ul class="scenario-list">
+                    <li><span class="job-date">[2026-03-27]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.20-periodics-e2e-aws-tests-bootc-nightly/2037364136362381312">periodic-ci-openshift-microshift-release-4.20-periodics-e2e-aws-tests-bootc-nightly</a></li>
+                    <li><span class="job-date">[2026-03-26]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.20-periodics-e2e-aws-tests-release-arm-periodic/2037017083614597120">periodic-ci-openshift-microshift-release-4.20-periodics-e2e-aws-tests-release-arm-periodic</a></li>
+                    <li><span class="job-date">[2026-03-26]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.20-periodics-e2e-aws-tests-release-periodic/2037017085384593408">periodic-ci-openshift-microshift-release-4.20-periodics-e2e-aws-tests-release-periodic</a></li>
+                </ul>
+                <p><strong>Next Steps:</strong> Investigate systemd eBPF device filter permissions on RHEL 9.4 y-minus-2 upgrade path. Check if cgroup v2 BPF delegation is properly configured after the upgrade.</p>
+            </div>
 
-🎉 RESULT
-  No failed periodic jobs found for release 4.20
-  This is good news - all periodic jobs are passing!
+            <div class="collapsible"><span class="severity-3">SEVERITY 3:</span> OCP Conformance MonitorTest Failures on arm64 (2 jobs)</div>
+            <div class="collapsible-content">
+                <div class="root-cause"><strong>Root Cause:</strong> Both conformance jobs (parallel and serial) on arm64 fail with nearly identical sets of MonitorTest failures: missing required-scc annotations, platform pods failing to start, and disruption poller failures. These are likely known test framework issues with MicroShift's single-node topology not matching OCP expectations.</div>
+                <p><strong>Affected Jobs:</strong></p>
+                <ul class="scenario-list">
+                    <li><span class="job-date">[2026-03-27]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.20-periodics-e2e-aws-ovn-ocp-conformance-arm64/2037379332476768256">periodic-ci-openshift-microshift-release-4.20-periodics-e2e-aws-ovn-ocp-conformance-arm64</a></li>
+                    <li><span class="job-date">[2026-03-27]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.20-periodics-e2e-aws-ovn-ocp-conformance-serial-arm64/2037379336759152640">periodic-ci-openshift-microshift-release-4.20-periodics-e2e-aws-ovn-ocp-conformance-serial-arm64</a></li>
+                </ul>
+            </div>
 
-═══════════════════════════════════════════════════════════════</div>
+            <div class="collapsible"><span class="severity-3">SEVERITY 3:</span> optional-sigstore Greenboot Failures (2 jobs)</div>
+            <div class="collapsible-content">
+                <div class="root-cause"><strong>Root Cause:</strong> The kserve-controller-manager deployment in redhat-ods-applications namespace fails to become ready. In one job this is due to missing certificate secrets (kserve-webhook-server-cert). This causes greenboot health check failure.</div>
+                <p><strong>Affected Jobs:</strong></p>
+                <ul class="scenario-list">
+                    <li><span class="job-date">[2026-03-27]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.20-periodics-e2e-aws-tests-bootc-nightly/2037364136362381312">periodic-ci-openshift-microshift-release-4.20-periodics-e2e-aws-tests-bootc-nightly</a></li>
+                    <li><span class="job-date">[2026-03-27]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.20-periodics-e2e-aws-tests-nightly/2037371608187801600">periodic-ci-openshift-microshift-release-4.20-periodics-e2e-aws-tests-nightly</a></li>
+                </ul>
+            </div>
+
+            <div class="collapsible"><span class="severity-3">SEVERITY 3:</span> Low-latency Workload-Partitioning + Ginkgo Test Failures (1 job)</div>
+            <div class="collapsible-content">
+                <div class="root-cause"><strong>Root Cause:</strong> Workload-Partitioning tests failed ("Control Plane Pods Must Be Annotated" and "Workload Partitioning Should Work") due to parent suite setup failure. Additionally, ginkgo-lvms greenboot sos report test failed.</div>
+                <p><strong>Affected Jobs:</strong></p>
+                <ul class="scenario-list">
+                    <li><span class="job-date">[2026-03-26]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.20-periodics-e2e-aws-tests-bootc-release-arm-periodic/2037017078568849408">periodic-ci-openshift-microshift-release-4.20-periodics-e2e-aws-tests-bootc-release-arm-periodic</a></li>
+                </ul>
+            </div>
+
+            <div class="collapsible"><span class="severity-3">SEVERITY 3:</span> SCC Admission Ginkgo + SELinux Validation Failures (1 job)</div>
+            <div class="collapsible-content">
+                <div class="root-cause"><strong>Root Cause:</strong> Test "[sig-api-machinery] API_Server on Microshift - MicroShift enable SCC admission for pods" failed. Additionally, Robot Framework "Validate-Selinux-Policy :: Standard SELinux Validation" failed with "Execution terminated by signal".</div>
+                <p><strong>Affected Jobs:</strong></p>
+                <ul class="scenario-list">
+                    <li><span class="job-date">[2026-03-26]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.20-periodics-e2e-aws-tests-release-periodic/2037017085384593408">periodic-ci-openshift-microshift-release-4.20-periodics-e2e-aws-tests-release-periodic</a></li>
+                </ul>
+            </div>
+
+            <div class="collapsible"><span class="severity-2">SEVERITY 2:</span> Infrastructure Failures (2 jobs) <span class="infra-tag">INFRA</span></div>
+            <div class="collapsible-content">
+                <div class="root-cause"><strong>Root Cause:</strong> (1) OCP release image import failure - cli tag missing from stable image stream. (2) Disk full on hypervisor /tmp, causing parallel test execution abort.</div>
+                <p><strong>Affected Jobs:</strong></p>
+                <ul class="scenario-list">
+                    <li><span class="job-date">[2026-03-27]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.20-periodics-e2e-aws-tests-bootc-arm-nightly/2037364134680465408">periodic-ci-openshift-microshift-release-4.20-periodics-e2e-aws-tests-bootc-arm-nightly</a> &mdash; OCP release image import failure</li>
+                    <li><span class="job-date">[2026-03-26]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.20-periodics-e2e-aws-tests-bootc-release-periodic/2037017081102209024">periodic-ci-openshift-microshift-release-4.20-periodics-e2e-aws-tests-bootc-release-periodic</a> &mdash; Disk full on hypervisor</li>
+                </ul>
+            </div>
         </div>
 
+        <!-- ==================== RELEASE 4.21 ==================== -->
         <div class="release-section" id="release-4.21">
             <div class="release-header">
                 <h2>Release 4.21</h2>
-                <span class="badge badge-ok">0 failed jobs</span>
+                <span class="badge badge-critical">7 failed jobs</span>
             </div>
-            <div class="content-block">═══════════════════════════════════════════════════════════════
-MICROSHIFT 4.21 RELEASE - FAILED JOBS ANALYSIS
-═══════════════════════════════════════════════════════════════
+            <div class="breakdown">
+                <div class="breakdown-item"><strong>Build:</strong> 0</div>
+                <div class="breakdown-item"><strong>Test:</strong> 5</div>
+                <div class="breakdown-item"><strong>Infrastructure:</strong> 1</div>
+                <div class="breakdown-item"><strong>Configuration:</strong> 1</div>
+            </div>
 
-📊 OVERVIEW
-  Total Failed Jobs: 0
-  Analysis Date: 2026-03-23
-  Status: ALL JOBS PASSING ✓
+            <div class="collapsible"><span class="severity-4">SEVERITY 4:</span> Multiple Test Failures: OLM networkpolicy, Storage PVC panic, AI model serving, TLS v1.3 (1 job)</div>
+            <div class="collapsible-content">
+                <div class="root-cause"><strong>Root Cause:</strong> Multiple distinct failures: (1) OLM networkpolicy test - catalog-operator egress ports count mismatch. (2) Storage PVC deletion test panic: index out of range [0] with length 0. (3) AI model serving online test failure. (4) TLS v1.3 standard1 Kustomize Load From manifestsd timeout.</div>
+                <p><strong>Affected Jobs:</strong></p>
+                <ul class="scenario-list">
+                    <li><span class="job-date">[2026-03-26]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.21-periodics-e2e-aws-tests-bootc-release-periodic/2037017094532370432">periodic-ci-openshift-microshift-release-4.21-periodics-e2e-aws-tests-bootc-release-periodic</a></li>
+                </ul>
+            </div>
 
-🎉 RESULT
-  No failed periodic jobs found for release 4.21
-  This is good news - all periodic jobs are passing!
+            <div class="collapsible"><span class="severity-3">SEVERITY 3:</span> OCP Conformance MonitorTest Failures on arm64 (2 jobs)</div>
+            <div class="collapsible-content">
+                <div class="root-cause"><strong>Root Cause:</strong> Both arm64 conformance jobs fail due to identical MonitorTest issues: disruption poller "Exec format error" (amd64/arm64 architecture mismatch), missing required-scc annotations on MicroShift platform pods. Known issues with running OCP test infrastructure on MicroShift.</div>
+                <p><strong>Affected Jobs:</strong></p>
+                <ul class="scenario-list">
+                    <li><span class="job-date">[2026-03-27]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.21-periodics-e2e-aws-ovn-ocp-conformance-arm64/2037379340869570560">periodic-ci-openshift-microshift-release-4.21-periodics-e2e-aws-ovn-ocp-conformance-arm64</a></li>
+                    <li><span class="job-date">[2026-03-27]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.21-periodics-e2e-aws-ovn-ocp-conformance-serial-arm64/2037379345898541056">periodic-ci-openshift-microshift-release-4.21-periodics-e2e-aws-ovn-ocp-conformance-serial-arm64</a></li>
+                </ul>
+            </div>
 
-═══════════════════════════════════════════════════════════════</div>
+            <div class="collapsible"><span class="severity-3">SEVERITY 3:</span> OLM NetworkPolicy Test Failure (1 job)</div>
+            <div class="collapsible-content">
+                <div class="root-cause"><strong>Root Cause:</strong> Test "olmv0 networkpolicy on microshift" (catalog-operator egress ports count Expected 0 to equal 1) fails consistently across ginkgo-tests and ginkgo-multi-config scenarios. Appears to be a product regression or test expectations mismatch.</div>
+                <p><strong>Affected Jobs:</strong></p>
+                <ul class="scenario-list">
+                    <li><span class="job-date">[2026-03-26]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.21-periodics-e2e-aws-tests-release-periodic/2037017100396007424">periodic-ci-openshift-microshift-release-4.21-periodics-e2e-aws-tests-release-periodic</a></li>
+                </ul>
+            </div>
+
+            <div class="collapsible"><span class="severity-3">SEVERITY 3:</span> Dual-Stack IPv6 Test Failure on arm64 (1 job)</div>
+            <div class="collapsible-content">
+                <div class="root-cause"><strong>Root Cause:</strong> "Verify New Pod Works With IPv6" failed - the hello-microshift pod was not accessible over IPv6 after 20 retries.</div>
+                <p><strong>Affected Jobs:</strong></p>
+                <ul class="scenario-list">
+                    <li><span class="job-date">[2026-03-26]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.21-periodics-e2e-aws-tests-release-arm-periodic/2037017097875230720">periodic-ci-openshift-microshift-release-4.21-periodics-e2e-aws-tests-release-arm-periodic</a></li>
+                </ul>
+            </div>
+
+            <div class="collapsible"><span class="severity-3">SEVERITY 3:</span> Branch Sync Issue - update-versions-releases (1 job)</div>
+            <div class="collapsible-content">
+                <div class="root-cause"><strong>Root Cause:</strong> The gen_gh_releases_from_rhocp.py script detected that the release-4.21 branch is not synced with main. It did not generate /tmp/releases.json, causing the subsequent cat command to fail.</div>
+                <p><strong>Affected Jobs:</strong></p>
+                <ul class="scenario-list">
+                    <li><span class="job-date">[2026-03-27]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.21-periodics-update-versions-releases/2037394328225058816">periodic-ci-openshift-microshift-release-4.21-periodics-update-versions-releases</a></li>
+                </ul>
+                <p><strong>Next Steps:</strong> Sync release-4.21 branch with main.</p>
+            </div>
+
+            <div class="collapsible"><span class="severity-2">SEVERITY 2:</span> Infrastructure Failure - Git Clone (1 job) <span class="infra-tag">INFRA</span></div>
+            <div class="collapsible-content">
+                <div class="root-cause"><strong>Root Cause:</strong> Transient network error during git submodule clone of origin/origin: "unexpected disconnect while reading sideband packet" / "early EOF". Job failed before any tests ran.</div>
+                <p><strong>Affected Jobs:</strong></p>
+                <ul class="scenario-list">
+                    <li><span class="job-date">[2026-03-26]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.21-periodics-e2e-aws-tests-bootc-release-arm-periodic/2037017091999010816">periodic-ci-openshift-microshift-release-4.21-periodics-e2e-aws-tests-bootc-release-arm-periodic</a></li>
+                </ul>
+            </div>
         </div>
 
+        <!-- ==================== RELEASE 4.22 ==================== -->
         <div class="release-section" id="release-4.22">
             <div class="release-header">
                 <h2>Release 4.22</h2>
-                <span class="badge badge-ok">0 failed jobs</span>
+                <span class="badge badge-critical">10 failed jobs</span>
             </div>
-            <div class="content-block">═══════════════════════════════════════════════════════════════
-MICROSHIFT 4.22 RELEASE - FAILED JOBS ANALYSIS
-═══════════════════════════════════════════════════════════════
+            <div class="breakdown">
+                <div class="breakdown-item"><strong>Build:</strong> 0</div>
+                <div class="breakdown-item"><strong>Test:</strong> 10</div>
+                <div class="breakdown-item"><strong>Infrastructure:</strong> 0</div>
+            </div>
 
-📊 OVERVIEW
-  Total Failed Jobs: 0
-  Analysis Date: 2026-03-23
-  Status: ALL JOBS PASSING ✓
+            <div class="collapsible"><span class="severity-4">SEVERITY 4:</span> Feature-Gates SpecialHandlingSupportExceptionRequired Test Bug (6 jobs)</div>
+            <div class="collapsible-content">
+                <div class="root-cause"><strong>Root Cause:</strong> "TypeError: Expected argument 1 to be a list or list-like, got None instead." or "AttributeError: specialHandlingSupportExceptionRequired". This is a test code bug, not a product bug. The test references a feature gate configuration key that does not exist or returns None. Fails every scenario that includes the "standard2" test suite.</div>
+                <p><strong>Affected Jobs:</strong></p>
+                <ul class="scenario-list">
+                    <li><span class="job-date">[2026-03-26]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.22-periodics-e2e-aws-tests-bootc-release-arm-periodic-el10/2037001883561758720">periodic-ci-...-bootc-release-arm-periodic-el10</a></li>
+                    <li><span class="job-date">[2026-03-26]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.22-periodics-e2e-aws-tests-bootc-release-arm-periodic-el9/2037001885239480320">periodic-ci-...-bootc-release-arm-periodic-el9</a> &mdash; 10 of 27 scenarios failed</li>
+                    <li><span class="job-date">[2026-03-26]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.22-periodics-e2e-aws-tests-bootc-release-periodic-el10/2037001888603312128">periodic-ci-...-bootc-release-periodic-el10</a></li>
+                    <li><span class="job-date">[2026-03-26]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.22-periodics-e2e-aws-tests-bootc-release-periodic-el9/2037001890293616640">periodic-ci-...-bootc-release-periodic-el9</a> &mdash; 10 of 27 scenarios failed</li>
+                    <li><span class="job-date">[2026-03-26]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.22-periodics-e2e-aws-tests-release-arm-periodic/2037001892780838912">periodic-ci-...-release-arm-periodic</a> &mdash; 7 of 22 scenarios failed</li>
+                    <li><span class="job-date">[2026-03-26]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.22-periodics-e2e-aws-tests-release-periodic/2037001895301615616">periodic-ci-...-release-periodic</a> &mdash; 7 of 22 scenarios failed</li>
+                </ul>
+                <p><strong>Next Steps:</strong> Fix the Feature-Gates test code to handle the missing/renamed specialHandlingSupportExceptionRequired feature gate key.</p>
+            </div>
 
-🎉 RESULT
-  No failed periodic jobs found for release 4.22
-  This is good news - all periodic jobs are passing!
+            <div class="collapsible"><span class="severity-3">SEVERITY 3:</span> Greenboot Logs Test Failure (6 jobs)</div>
+            <div class="collapsible-content">
+                <div class="root-cause"><strong>Root Cause:</strong> Test "[sig-cli] Workloads sos reports MicroShiftOnly-Author:knarra-High-68256-Verify greenboot logs reside in a separate directory and easy to access" fails consistently across all platforms (arm64/x86, el9/el10) with "Expected to be true".</div>
+                <p><strong>Affected Jobs:</strong></p>
+                <ul class="scenario-list">
+                    <li><span class="job-date">[2026-03-26]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.22-periodics-e2e-aws-tests-bootc-release-arm-periodic-el10/2037001883561758720">periodic-ci-...-bootc-release-arm-periodic-el10</a></li>
+                    <li><span class="job-date">[2026-03-26]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.22-periodics-e2e-aws-tests-bootc-release-arm-periodic-el9/2037001885239480320">periodic-ci-...-bootc-release-arm-periodic-el9</a></li>
+                    <li><span class="job-date">[2026-03-26]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.22-periodics-e2e-aws-tests-bootc-release-periodic-el10/2037001888603312128">periodic-ci-...-bootc-release-periodic-el10</a></li>
+                    <li><span class="job-date">[2026-03-26]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.22-periodics-e2e-aws-tests-bootc-release-periodic-el9/2037001890293616640">periodic-ci-...-bootc-release-periodic-el9</a></li>
+                    <li><span class="job-date">[2026-03-26]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.22-periodics-e2e-aws-tests-release-arm-periodic/2037001892780838912">periodic-ci-...-release-arm-periodic</a></li>
+                    <li><span class="job-date">[2026-03-26]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.22-periodics-e2e-aws-tests-release-periodic/2037001895301615616">periodic-ci-...-release-periodic</a></li>
+                </ul>
+            </div>
 
-═══════════════════════════════════════════════════════════════</div>
+            <div class="collapsible"><span class="severity-3">SEVERITY 3:</span> MonitorTest Failures - Conformance &amp; OLM (3 jobs)</div>
+            <div class="collapsible-content">
+                <div class="root-cause"><strong>Root Cause:</strong> required-scc-annotation-checker, kubelet-container-restarts, pod-network-availability poller failures, and no-default-service-account violations across MicroShift platform namespaces. MicroShift platform pods lack required-scc annotations and experience restarts during conformance testing.</div>
+                <p><strong>Affected Jobs:</strong></p>
+                <ul class="scenario-list">
+                    <li><span class="job-date">[2026-03-27]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.22-periodics-e2e-aws-ovn-ocp-conformance-arm64/2037379350088650752">periodic-ci-...-ocp-conformance-arm64</a> &mdash; Pod InPlace Resize test failure (blocking)</li>
+                    <li><span class="job-date">[2026-03-27]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.22-periodics-e2e-aws-ovn-ocp-conformance-serial-arm64/2037379355964870656">periodic-ci-...-ocp-conformance-serial-arm64</a></li>
+                    <li><span class="job-date">[2026-03-27]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-operator-framework-olm-release-4.22-periodics-e2e-microshift-aws-ovn-extended-f2/2037480841730330624">periodic-ci-...-olm-...-e2e-microshift-aws-ovn-extended-f2</a></li>
+                </ul>
+            </div>
+
+            <div class="collapsible"><span class="severity-2">SEVERITY 2:</span> Multus No Pre-Existing Bridge Interface (1 job)</div>
+            <div class="collapsible-content">
+                <div class="root-cause"><strong>Root Cause:</strong> Multus test setup failure: "1 != 0". May be environment-specific.</div>
+                <p><strong>Affected Jobs:</strong></p>
+                <ul class="scenario-list">
+                    <li><span class="job-date">[2026-03-27]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.22-periodics-e2e-aws-tests-nightly/2037371617302024192">periodic-ci-openshift-microshift-release-4.22-periodics-e2e-aws-tests-nightly</a></li>
+                </ul>
+            </div>
+
+            <div class="collapsible"><span class="severity-4">SEVERITY 4:</span> Additional Test Failures in el9 Jobs (2 jobs)</div>
+            <div class="collapsible-content">
+                <div class="root-cause"><strong>Root Cause:</strong> Low-latency tuned reboot timeout (6 cascading test failures in el98-lrel@low-latency), hostPort networking test failure, SR-IOV VF creation failure, and loadbalancer service test failure on el10. These appear alongside the dominant Feature-Gates and greenboot logs failures.</div>
+                <p><strong>Affected Jobs:</strong></p>
+                <ul class="scenario-list">
+                    <li><span class="job-date">[2026-03-26]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.22-periodics-e2e-aws-tests-bootc-release-arm-periodic-el9/2037001885239480320">periodic-ci-...-bootc-release-arm-periodic-el9</a></li>
+                    <li><span class="job-date">[2026-03-26]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-release-4.22-periodics-e2e-aws-tests-bootc-release-periodic-el10/2037001888603312128">periodic-ci-...-bootc-release-periodic-el10</a></li>
+                </ul>
+            </div>
         </div>
 
+        <!-- ==================== RELEASE main ==================== -->
         <div class="release-section" id="release-main">
             <div class="release-header">
-                <h2>Main Branch</h2>
-                <span class="badge badge-ok">0 failed jobs</span>
+                <h2>Release main</h2>
+                <span class="badge badge-issues">2 failed jobs</span>
             </div>
-            <div class="content-block">═══════════════════════════════════════════════════════════════
-MICROSHIFT MAIN BRANCH - FAILED JOBS ANALYSIS
-═══════════════════════════════════════════════════════════════
+            <div class="breakdown">
+                <div class="breakdown-item"><strong>Build:</strong> 0</div>
+                <div class="breakdown-item"><strong>Test:</strong> 2</div>
+                <div class="breakdown-item"><strong>Infrastructure:</strong> 0</div>
+            </div>
 
-📊 OVERVIEW
-  Total Failed Jobs: 0
-  Analysis Date: 2026-03-23
-  Status: ALL JOBS PASSING ✓
+            <div class="collapsible"><span class="severity-3">SEVERITY 3:</span> cos10-src@optional: Multiple Test Failures with Cert-Manager Cascade (1 job, amd64)</div>
+            <div class="collapsible-content">
+                <div class="root-cause"><strong>Root Cause:</strong> The cos10-src@optional scenario failed with 9 test failures. Initial real failures: OLM (CSV stuck in InstallReady state), Multus (pre-existing bridge interface check), and Cert-Manager (execution terminated by signal, likely timeout). The Cert-Manager fatal error caused a cascading failure that skipped Generic-Device-Plugin (4 tests) and Tls-Scanner (1 test). All other 13 scenarios passed.</div>
+                <p><strong>Affected Jobs:</strong></p>
+                <ul class="scenario-list">
+                    <li><span class="job-date">[2026-03-27]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-main-e2e-aws-tests-bootc-upstream-periodic/2037379314021830656">periodic-ci-openshift-microshift-main-e2e-aws-tests-bootc-upstream-periodic</a></li>
+                </ul>
+            </div>
 
-🎉 RESULT
-  No failed periodic jobs found for main branch
-  This is good news - all periodic jobs are passing!
-
-═══════════════════════════════════════════════════════════════</div>
+            <div class="collapsible"><span class="severity-2">SEVERITY 2:</span> TLS-Scanner Deployment Timeout on arm64 (1 job)</div>
+            <div class="collapsible-content">
+                <div class="root-cause"><strong>Root Cause:</strong> Two scenarios (cos10-src@optional and cos9-src@optional) failed exclusively due to the Tls-Scanner test. Error: "Failed to deploy tls-scanner job: -15 != 0" indicates SIGTERM (signal 15), likely due to timeout. The current branch "skip-tls-scanner-cos10" suggests work is already underway to address this. All other 12 scenarios passed.</div>
+                <p><strong>Affected Jobs:</strong></p>
+                <ul class="scenario-list">
+                    <li><span class="job-date">[2026-03-27]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/logs/periodic-ci-openshift-microshift-main-e2e-aws-tests-bootc-upstream-periodic-arm/2037379317394051072">periodic-ci-openshift-microshift-main-e2e-aws-tests-bootc-upstream-periodic-arm</a></li>
+                </ul>
+            </div>
         </div>
+
     </div>
 
+    <!-- Pull Requests tab content -->
     <div id="tab-pull-requests" class="tab-content">
-        <div class="pr-section" id="pr-6391">
+
+        <div class="release-section" id="pr-6410">
             <div class="release-header">
-                <h2>PR #6391: NO-ISSUE: rebase-release-4.22</h2>
-                <span class="badge badge-issues">1 failed job</span>
+                <h2>PR #6410: NO-ISSUE: rebase-release-4.19</h2>
+                <span class="badge badge-issues">2 failed jobs</span>
             </div>
-            <p><a href="https://github.com/openshift/microshift/pull/6391" target="_blank">https://github.com/openshift/microshift/pull/6391</a></p>
-            <p><strong>Status:</strong> 14 passed, 1 failed</p>
+            <p>Branch: release-4.19</p>
 
-            <div class="job-detail severity-medium">
-                <h4>1. pull-ci-openshift-microshift-main-e2e-aws-tests-bootc-arm-el10</h4>
-                <p class="job-url"><a href="https://prow.ci.openshift.org/view/gs/test-platform-results/pr-logs/pull/openshift_microshift/6391/pull-ci-openshift-microshift-main-e2e-aws-tests-bootc-arm-el10/2036068479202758656" target="_blank">View Job</a></p>
-                <p><strong>Severity:</strong> MEDIUM (3/5)</p>
-                <p><strong>Root Cause:</strong> Auto-recovery service test failure on EL10 - service remains in "failed" state instead of transitioning to "dead" state</p>
-                <p><strong>Details:</strong></p>
-                <ul>
-                    <li>Only 1 of 15 parallel scenarios failed (el102-src@auto-recovery)</li>
-                    <li>All other auto-recovery tests passed (EL9.6, EL9.8)</li>
-                    <li>Specific to EL10.2 bootc environment</li>
-                    <li>Error: Keyword 'Auto Recovery Finished Recently' failed after retrying 20 times</li>
-                </ul>
-                <p><strong>Next Steps:</strong> Examine microshift-auto-recovery.service logs on EL10, compare with EL9 behavior, check for EL10-specific systemd changes</p>
+            <div class="collapsible"><span class="job-date">[2026-03-26]</span> <span class="severity-3">SEVERITY 3:</span> pull-ci-openshift-microshift-release-4.19-e2e-aws-tests</div>
+            <div class="collapsible-content">
+                <p><strong>Job:</strong> <span class="job-date">[2026-03-26]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/pr-logs/pull/openshift_microshift/6410/pull-ci-openshift-microshift-release-4.19-e2e-aws-tests/2037023679275077632">pull-ci-openshift-microshift-release-4.19-e2e-aws-tests</a></p>
+                <div class="root-cause"><strong>Root Cause:</strong> Greenboot health check timeout on RHEL 9.4 ostree base images. MicroShift service became active and API health endpoints became OK, but no pods reached running state within 600s. Failed scenarios: el94-prel@el96-src@upgrade-ok and el94-yminus2@el96-src@upgrade-ok. All 18 el96-based scenarios passed.</div>
+            </div>
+
+            <div class="collapsible"><span class="job-date">[2026-03-26]</span> <span class="severity-3">SEVERITY 3:</span> pull-ci-openshift-microshift-release-4.19-e2e-aws-tests-arm</div>
+            <div class="collapsible-content">
+                <p><strong>Job:</strong> <span class="job-date">[2026-03-26]</span> <a href="https://prow.ci.openshift.org/view/gs/test-platform-results/pr-logs/pull/openshift_microshift/6410/pull-ci-openshift-microshift-release-4.19-e2e-aws-tests-arm/2037023680084578304">pull-ci-openshift-microshift-release-4.19-e2e-aws-tests-arm</a></p>
+                <div class="root-cause"><strong>Root Cause:</strong> Identical failure to x86_64 job. Greenboot health check timeout on RHEL 9.4 ostree base images. MicroShift API health endpoints became OK, but no pods reached running state within 600s. Same el94 upgrade scenarios failed; all el96 scenarios passed.</div>
             </div>
         </div>
 
-        <div class="pr-section" id="pr-6389">
+        <div class="release-section">
             <div class="release-header">
-                <h2>PR #6389: NO-ISSUE: rebase-release-4.20</h2>
-                <span class="badge badge-critical">2 failed jobs</span>
-            </div>
-            <p><a href="https://github.com/openshift/microshift/pull/6389" target="_blank">https://github.com/openshift/microshift/pull/6389</a></p>
-            <p><strong>Status:</strong> 11 passed, 2 failed</p>
-
-            <div class="job-detail severity-high">
-                <h4>1. pull-ci-openshift-microshift-release-4.20-e2e-aws-tests</h4>
-                <p class="job-url"><a href="https://prow.ci.openshift.org/view/gs/test-platform-results/pr-logs/pull/openshift_microshift/6389/pull-ci-openshift-microshift-release-4.20-e2e-aws-tests/2036068186213847040" target="_blank">View Job</a></p>
-                <p><strong>Severity:</strong> CRITICAL (5/5)</p>
-                <p><strong>Root Cause:</strong> systemd eBPF device filter installation failure - prevents ALL OVN containers from starting</p>
-                <p><strong>Details:</strong></p>
-                <ul>
-                    <li>Scenario: el94-yminus2@el96-src@upgrade-ok (RHEL 9.4 → 9.6)</li>
-                    <li>OVN pods cannot start → no CNI → no network → greenboot timeout</li>
-                    <li>Incompatibility between RHEL 9.6 systemd/kernel and CRI-O</li>
-                    <li>Error: CreateContainerError - systemd failed to install eBPF device filter on cgroup</li>
-                </ul>
-                <p><strong>Next Steps:</strong> Verify CRI-O compatibility with RHEL 9.6 systemd, check cgroup v2 configuration changes, update CRI-O or modify OVN pod specs</p>
-            </div>
-
-            <div class="job-detail severity-medium">
-                <h4>2. pull-ci-openshift-microshift-release-4.20-e2e-aws-tests-arm</h4>
-                <p class="job-url"><a href="https://prow.ci.openshift.org/view/gs/test-platform-results/pr-logs/pull/openshift_microshift/6389/pull-ci-openshift-microshift-release-4.20-e2e-aws-tests-arm/2036068186255790080" target="_blank">View Job</a></p>
-                <p><strong>Severity:</strong> MEDIUM (3/5)</p>
-                <p><strong>Root Cause:</strong> Greenboot timeout - no pods started within 600s</p>
-                <p><strong>Details:</strong></p>
-                <ul>
-                    <li>Scenario: el94-yminus2@el96-src@upgrade-ok (ARM)</li>
-                    <li>MicroShift service and API healthy, but pods won't start</li>
-                    <li>Only 1 of 20 scenarios failed</li>
-                </ul>
-                <p><strong>Next Steps:</strong> Check MicroShift journal for pod startup errors, review networking/CNI configuration on ARM</p>
+                <h2>PR #6407: (release-4.20)</h2>
+                <span class="badge badge-nodata">SKIPPED - jobs still running</span>
             </div>
         </div>
 
-        <div class="pr-section" id="pr-6388">
-            <div class="release-header">
-                <h2>PR #6388: NO-ISSUE: rebase-release-4.19</h2>
-                <span class="badge badge-critical">2 failed jobs</span>
-            </div>
-            <p><a href="https://github.com/openshift/microshift/pull/6388" target="_blank">https://github.com/openshift/microshift/pull/6388</a></p>
-            <p><strong>Status:</strong> 11 passed, 2 failed</p>
-
-            <div class="job-detail severity-high">
-                <h4>1. pull-ci-openshift-microshift-release-4.19-e2e-aws-tests</h4>
-                <p class="job-url"><a href="https://prow.ci.openshift.org/view/gs/test-platform-results/pr-logs/pull/openshift_microshift/6388/pull-ci-openshift-microshift-release-4.19-e2e-aws-tests/2036068093242904576" target="_blank">View Job</a></p>
-                <p><strong>Severity:</strong> HIGH (4/5)</p>
-                <p><strong>Root Cause:</strong> Missing SCC annotations on namespaces after upgrade - prevents ALL pod creation</p>
-                <p><strong>Details:</strong></p>
-                <ul>
-                    <li>Scenario: el94-prel@el96-src@upgrade-ok (RHEL 9.4 → 9.6)</li>
-                    <li>Missing annotation: openshift.io/sa.scc.uid-range</li>
-                    <li>Affects: openshift-service-ca, kube-system, default, kube-public, kube-node-lease</li>
-                    <li>SCC admission controller blocks all pod creation</li>
-                </ul>
-                <p><strong>Next Steps:</strong> Fix MicroShift upgrade logic to preserve/regenerate SCC annotations - this is a product bug in 4.18 → 4.19 upgrade path</p>
-            </div>
-
-            <div class="job-detail severity-high">
-                <h4>2. pull-ci-openshift-microshift-release-4.19-e2e-aws-tests-arm</h4>
-                <p class="job-url"><a href="https://prow.ci.openshift.org/view/gs/test-platform-results/pr-logs/pull/openshift_microshift/6388/pull-ci-openshift-microshift-release-4.19-e2e-aws-tests-arm/2036068093289041920" target="_blank">View Job</a></p>
-                <p><strong>Severity:</strong> CRITICAL (5/5)</p>
-                <p><strong>Root Cause:</strong> systemd eBPF device filter failure (same root cause as PR #6389)</p>
-                <p><strong>Details:</strong></p>
-                <ul>
-                    <li>Scenarios: el94-prel@el96-src@upgrade-ok AND el94-yminus2@el96-src@upgrade-ok</li>
-                    <li>Both RHEL 9.4 → 9.6 upgrade scenarios on ARM64</li>
-                    <li>2 of 20 scenarios failed</li>
-                    <li>Same systemd/CRI-O compatibility issue</li>
-                </ul>
-                <p><strong>Next Steps:</strong> Same as other eBPF failures - CRI-O configuration updates or systemd service adjustments needed</p>
-            </div>
-        </div>
-
-        <div class="pr-section">
-            <h3>Common Patterns Across PRs</h3>
-            <div class="job-detail severity-high">
-                <h4>Pattern 1: RHEL 9.4 → 9.6 Upgrade Issues (3 jobs)</h4>
-                <p><strong>Issue:</strong> systemd eBPF device filter failures on ARM64</p>
-                <p><strong>Affected:</strong> PR #6389 (4.20), PR #6388 (4.19)</p>
-                <p><strong>Severity:</strong> CRITICAL</p>
-                <p>This appears to be a systemic issue with RHEL 9.6 upgrades on ARM architecture where systemd cannot install eBPF device filters for container cgroups.</p>
-            </div>
-
-            <div class="job-detail severity-medium">
-                <h4>Pattern 2: Missing SCC Annotations After Upgrade (1 job)</h4>
-                <p><strong>Issue:</strong> Namespace annotations lost during 4.18 → 4.19 upgrade</p>
-                <p><strong>Affected:</strong> PR #6388 (4.19)</p>
-                <p><strong>Severity:</strong> HIGH</p>
-                <p>Product bug in MicroShift upgrade path - namespace SCC annotations not preserved during version upgrades.</p>
-            </div>
-
-            <div class="job-detail severity-low">
-                <h4>Pattern 3: EL10 Auto-Recovery Test Failure (1 job)</h4>
-                <p><strong>Issue:</strong> Service state transition issue on EL10</p>
-                <p><strong>Affected:</strong> PR #6391 (4.22)</p>
-                <p><strong>Severity:</strong> MEDIUM</p>
-                <p>Isolated to EL10.2 environment - may be EL10 support gap or test issue.</p>
-            </div>
-        </div>
     </div>
 </div>
 
