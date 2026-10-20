@@ -54,7 +54,7 @@ Certificate Layout Is Migrated On Upgrade
 
     # Backup dir must exist
     ${backup_count}=    Command Should Work
-    ...    ls ${CERTS_PARENT} | grep -c 'certs\\.backup\\.' || echo 0
+    ...    ls ${CERTS_PARENT} | grep -c 'certs\\.backup\\.' || true
     Should Be True    ${backup_count} >= 1
     ...    msg=Expected at least one certs.backup.* directory in ${CERTS_PARENT}
 
