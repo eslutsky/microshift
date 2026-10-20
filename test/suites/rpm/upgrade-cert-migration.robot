@@ -60,8 +60,11 @@ Certificate Layout Is Migrated On Upgrade
 
 Service CA Is Preserved Across Upgrade
     [Documentation]    Verify service-ca fingerprint is identical before and after upgrade.
-    Log    placeholder
-    # implementation added in Task 3
+    ...                PRE_SERVICE_CA_FP is captured in Suite Setup before the 5.0 → 5.1 upgrade.
+    ${post_fp}=    Command Should Work
+    ...    openssl x509 -noout -fingerprint -sha256 -in ${CERTSDIR}/service-ca/ca.crt
+    Should Be Equal As Strings    ${PRE_SERVICE_CA_FP}    ${post_fp}
+    ...    msg=service-ca fingerprint changed across upgrade — service-ca was not preserved
 
 Cluster Is Healthy After Upgrade
     [Documentation]    Verify microshift healthcheck passes and node is Ready after upgrade.
