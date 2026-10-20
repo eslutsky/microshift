@@ -68,18 +68,36 @@ Service CA Is Preserved Across Upgrade
 
 Cluster Is Healthy After Upgrade
     [Documentation]    Verify microshift healthcheck passes and node is Ready after upgrade.
-    Log    placeholder
-    # implementation added in Task 4
+    Wait For MicroShift Healthcheck Success
+    Setup Kubeconfig
+    Command Should Work    oc wait node --all --for=condition=Ready --timeout=60s
 
 Legacy Certificate Layout Is Regenerated On Downgrade
-    [Documentation]    Reinstall 5.0 RPM and verify the 12-CA layout is regenerated.
-    Log    placeholder
-    # implementation added in Task 5
+    [Documentation]    Reinstall 5.0 RPM and verify the old 12-CA layout is regenerated from scratch.
+    ...                The old binary does not recognize the 6-CA layout and falls back to fresh-start,
+    ...                recreating all legacy signer dirs.
+    Install MicroShift RPM Packages From System Repo
+    ...    ${PREVIOUS_MAJOR_VERSION}.${PREVIOUS_MINOR_VERSION}.*
+    ...    check_warnings=False
+    Restart MicroShift
+    Wait For MicroShift Healthcheck Success
+
+    # Legacy signer dirs must be regenerated
+    Verify Remote Directory Exists With Sudo    ${CERTSDIR}/kube-control-plane-signer
+    Verify Remote Directory Exists With Sudo    ${CERTSDIR}/etcd-signer
+    Verify Remote Directory Exists With Sudo    ${CERTSDIR}/admin-kubeconfig-signer
+    Verify Remote Directory Exists With Sudo    ${CERTSDIR}/kube-apiserver-external-signer
+
+    # New 6-CA dirs must be absent (old binary generates the old layout only)
+    Verify Remote Directory Does Not Exist With Sudo    ${CERTSDIR}/client-ca
+    Verify Remote Directory Does Not Exist With Sudo    ${CERTSDIR}/serving-ca
+    Verify Remote Directory Does Not Exist With Sudo    ${CERTSDIR}/peer-ca
 
 Cluster Is Healthy After Downgrade
     [Documentation]    Verify microshift healthcheck passes and node is Ready after downgrade.
-    Log    placeholder
-    # implementation added in Task 6
+    Wait For MicroShift Healthcheck Success
+    Setup Kubeconfig
+    Command Should Work    oc wait node --all --for=condition=Ready --timeout=60s
 
 
 *** Keywords ***
