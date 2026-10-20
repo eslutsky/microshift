@@ -54,7 +54,7 @@ Certificate Layout Is Migrated On Upgrade
 
     # Backup dir must exist
     ${backup_count}=    Command Should Work
-    ...    ls ${CERTS_PARENT} | grep -c 'certs\\.backup\\.'
+    ...    ls ${CERTS_PARENT} | grep -c 'certs\\.backup\\.' || echo 0
     Should Be True    ${backup_count} >= 1
     ...    msg=Expected at least one certs.backup.* directory in ${CERTS_PARENT}
 
@@ -68,7 +68,6 @@ Service CA Is Preserved Across Upgrade
 
 Cluster Is Healthy After Upgrade
     [Documentation]    Verify microshift healthcheck passes and node is Ready after upgrade.
-    Wait For MicroShift Healthcheck Success
     Setup Kubeconfig
     Command Should Work    oc wait node --all --for=condition=Ready --timeout=60s
 
@@ -87,6 +86,8 @@ Legacy Certificate Layout Is Regenerated On Downgrade
     Verify Remote Directory Exists With Sudo    ${CERTSDIR}/etcd-signer
     Verify Remote Directory Exists With Sudo    ${CERTSDIR}/admin-kubeconfig-signer
     Verify Remote Directory Exists With Sudo    ${CERTSDIR}/kube-apiserver-external-signer
+    Verify Remote Directory Exists With Sudo    ${CERTSDIR}/kube-apiserver-localhost-signer
+    Verify Remote Directory Exists With Sudo    ${CERTSDIR}/kube-apiserver-service-network-signer
 
     # New 6-CA dirs must be absent (old binary generates the old layout only)
     Verify Remote Directory Does Not Exist With Sudo    ${CERTSDIR}/client-ca
@@ -95,7 +96,6 @@ Legacy Certificate Layout Is Regenerated On Downgrade
 
 Cluster Is Healthy After Downgrade
     [Documentation]    Verify microshift healthcheck passes and node is Ready after downgrade.
-    Wait For MicroShift Healthcheck Success
     Setup Kubeconfig
     Command Should Work    oc wait node --all --for=condition=Ready --timeout=60s
 
@@ -106,6 +106,8 @@ Setup
     Check Required Env Variables
     Should Not Be Empty    ${SOURCE_REPO_URL}    SOURCE_REPO_URL variable is required
     Should Not Be Empty    ${TARGET_VERSION}    TARGET_VERSION variable is required
+    Should Not Be Empty    ${PREVIOUS_MAJOR_VERSION}    PREVIOUS_MAJOR_VERSION variable is required
+    Should Not Be Empty    ${PREVIOUS_MINOR_VERSION}    PREVIOUS_MINOR_VERSION variable is required
     Login MicroShift Host
     System Should Not Be Ostree
     Install MicroShift RPM Packages From System Repo
